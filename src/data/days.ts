@@ -730,11 +730,11 @@ export const days: TripDay[] = [
     activities: [
       {
         id: "d10-check-in-hotel-grand-bach-toky-0",
-        time: "3:00 PM",
+        time: "3:30 PM",
         isApproximate: true,
         name: "Check in — Hotel Grand Bach Tokyo Ginza",
         category: "hotel",
-        notes: "Drop bags. You’re in central Ginza — Dover Street Market, Kindal, GINZA SIX are all within a 5-minute walk.",
+        notes: "Nozomi 252 arrives Tokyo Station 2:45 PM. ~15 min to hotel from there. Drop bags. You're in central Ginza — Dover Street Market, Kindal, GINZA SIX are all within a 5-minute walk.",
         isOptional: false,
         mapsQuery: "Check in — Hotel Grand Bach Tokyo Ginza",
       },

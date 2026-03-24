@@ -104,10 +104,10 @@ export const actionItems: ActionItem[] = [
     completed: true,
   },
   {
-    id: "kyoto-check-shinkansen-schedule-for-",
-    text: "Check Shinkansen schedule for April 20 Kyoto → Tokyo",
+    id: "kyoto-shinkansen-kyoto-tokyo-booked-",
+    text: "Shinkansen Kyoto → Tokyo — BOOKED. Nozomi 252, Apr 20, 12:30 PM. Ref # EAY107828. Green Car 8, Seats 10-A/10-B/11-A.",
     legSlug: "kyoto",
-    completed: false,
+    completed: true,
   },
   {
     id: "kyoto-plan-fushimi-inari-for-late-af",
