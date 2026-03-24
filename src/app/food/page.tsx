@@ -6,6 +6,7 @@ import { legs } from "@/data/legs";
 import { MapLink } from "@/components/shared/MapLink";
 import { Utensils, Coffee, Wine, UtensilsCrossed } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getOpenStatus } from "@/lib/openNow";
 
 const categoryIcons: Record<FoodCategory, typeof Utensils> = {
   restaurant: Utensils,
@@ -127,6 +128,12 @@ export default function FoodPage() {
                                   {spot.cuisine && <span>{spot.cuisine}</span>}
                                   {spot.rating && <span>&middot; {spot.rating}★</span>}
                                   <span>&middot; {spot.hours}</span>
+                                  {(() => {
+                                    const status = getOpenStatus(spot.hours);
+                                    if (status === "open") return <span className="text-green-400 font-semibold normal-case tracking-normal">&middot; Open</span>;
+                                    if (status === "closed") return <span className="text-red-400/70 font-semibold normal-case tracking-normal">&middot; Closed</span>;
+                                    return null;
+                                  })()}
                                 </div>
                               </div>
                               <p className="text-sm text-on-surface-variant leading-relaxed">

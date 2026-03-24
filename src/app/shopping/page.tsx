@@ -6,6 +6,7 @@ import { legs } from "@/data/legs";
 import { MapLink } from "@/components/shared/MapLink";
 import { ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getOpenStatus } from "@/lib/openNow";
 
 type LegFilter = "all" | string;
 
@@ -96,6 +97,12 @@ export default function ShoppingPage() {
                                 <span>{shop.location}</span>
                                 {shop.rating && <span>&middot; {shop.rating}★</span>}
                                 <span>&middot; {shop.hours}</span>
+                                {(() => {
+                                  const status = getOpenStatus(shop.hours);
+                                  if (status === "open") return <span className="text-green-400 font-semibold normal-case tracking-normal">&middot; Open</span>;
+                                  if (status === "closed") return <span className="text-red-400/70 font-semibold normal-case tracking-normal">&middot; Closed</span>;
+                                  return null;
+                                })()}
                               </div>
                             </div>
                             <p className="text-sm text-on-surface-variant leading-relaxed">

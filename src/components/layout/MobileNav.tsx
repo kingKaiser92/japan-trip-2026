@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, CalendarDays, Utensils, ShoppingBag, CheckSquare } from "lucide-react";
+import { Home, CalendarDays, Utensils, ShoppingBag, CheckSquare, BookOpen, Dumbbell, MapPin, Ticket } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentDay } from "@/hooks/useCurrentDay";
 
@@ -12,6 +12,10 @@ const navItems = [
   { href: "/food", icon: Utensils, label: "Food" },
   { href: "/shopping", icon: ShoppingBag, label: "Shop" },
   { href: "/checklist", icon: CheckSquare, label: "List" },
+  { href: "/map", icon: MapPin, label: "Map" },
+  { href: "/training", icon: Dumbbell, label: "Train" },
+  { href: "/essentials", icon: BookOpen, label: "Essentials" },
+  { href: "/bookings", icon: Ticket, label: "Bookings" },
 ];
 
 export function MobileNav() {
