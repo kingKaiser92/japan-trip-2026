@@ -2,52 +2,13 @@
 
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { legs } from "@/data/legs";
+import { actionItems } from "@/data/actionItems";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface ChecklistItem {
-  id: string;
-  text: string;
-  legSlug: string;
-  defaultCompleted: boolean;
-}
-
-const items: ChecklistItem[] = [
-  // Tokyo First Leg
-  { id: "t1-teamlab", text: "Book teamLab Borderless tickets", legSlug: "tokyo-1", defaultCompleted: false },
-  { id: "t1-sushi", text: "Reserve Sushi Edomaru Asakusa", legSlug: "tokyo-1", defaultCompleted: false },
-  { id: "t1-suica", text: "Download Suica/Pasmo for transit", legSlug: "tokyo-1", defaultCompleted: false },
-  { id: "t1-hikiniku", text: "Pre-book Hikiniku to Come on TableCheck", legSlug: "tokyo-1", defaultCompleted: false },
-  { id: "t1-nigirite", text: "Reserve Shinjuku Sushi Bar Nigirite", legSlug: "tokyo-1", defaultCompleted: false },
-  { id: "t1-yoroniku", text: "Book Yoroniku (beef omakase)", legSlug: "tokyo-1", defaultCompleted: false },
-  { id: "t1-tokimeki", text: "Reserve Tokimeki in Koenji", legSlug: "tokyo-1", defaultCompleted: false },
-  // Fuji
-  { id: "f-robata", text: "Book Robata OYAMA dinner", legSlug: "fuji", defaultCompleted: true },
-  { id: "f-track", text: "Check if track experience available Apr 14/15", legSlug: "fuji", defaultCompleted: false },
-  { id: "f-transport", text: "Plan transport to Kyoto — Shinkansen", legSlug: "fuji", defaultCompleted: true },
-  // Kyoto
-  { id: "k-geisha", text: "Book Geisha Show at Gion MAIKOYA", legSlug: "kyoto", defaultCompleted: false },
-  { id: "k-tea", text: "Kimono Tea Ceremony at MAIKOYA (Apr 16)", legSlug: "kyoto", defaultCompleted: true },
-  { id: "k-badu", text: "Badu reservation (Apr 17)", legSlug: "kyoto", defaultCompleted: true },
-  { id: "k-sanzen", text: "Reserve Sanzen-in no Sato omakase", legSlug: "kyoto", defaultCompleted: false },
-  { id: "k-train", text: "Book Sagano Romantic Train e-tickets", legSlug: "kyoto", defaultCompleted: false },
-  { id: "k-boat", text: "Book Hozugawa River Boat Ride", legSlug: "kyoto", defaultCompleted: false },
-  { id: "k-wife", text: "Reserve Wife & Husband Cafe", legSlug: "kyoto", defaultCompleted: false },
-  { id: "k-eel", text: "Book Hozenji Yamakazu (Osaka eel dinner)", legSlug: "kyoto", defaultCompleted: false },
-  { id: "k-ic", text: "Get IC cards loaded for Kyoto buses + JR trains", legSlug: "kyoto", defaultCompleted: false },
-  { id: "k-shinkansen", text: "Check Shinkansen schedule Apr 20 Kyoto → Tokyo", legSlug: "kyoto", defaultCompleted: false },
-  // Tokyo Ginza
-  { id: "g-fukumimi", text: "Reserve FUKUMIMI Ginza 6 for arrival dinner", legSlug: "tokyo-ginza", defaultCompleted: false },
-  { id: "g-barhigh5", text: "Check Bar High Five hours (closed Fri/Sun)", legSlug: "tokyo-ginza", defaultCompleted: false },
-  { id: "g-toyosu", text: "Confirm Toyosu Market open Apr 21 (closed Wed/Sun)", legSlug: "tokyo-ginza", defaultCompleted: false },
-  { id: "g-terminal", text: "Check Haneda terminal for AA 168", legSlug: "tokyo-ginza", defaultCompleted: false },
-  { id: "g-shipping", text: "Consider shipping extra bags via Yamato", legSlug: "tokyo-ginza", defaultCompleted: false },
-  { id: "g-yoroniku2", text: "Book Yoroniku (if not booked in first leg)", legSlug: "tokyo-ginza", defaultCompleted: false },
-];
-
 export default function ChecklistPage() {
   const [checked, setChecked] = useLocalStorage<string[]>("checklist-checked",
-    items.filter(i => i.defaultCompleted).map(i => i.id)
+    actionItems.filter(i => i.completed).map(i => i.id)
   );
 
   const toggle = (id: string) => {
@@ -57,7 +18,7 @@ export default function ChecklistPage() {
   };
 
   const completedCount = checked.length;
-  const totalCount = items.length;
+  const totalCount = actionItems.length;
   const progress = (completedCount / totalCount) * 100;
 
   return (
@@ -79,7 +40,7 @@ export default function ChecklistPage() {
       </div>
 
       {legs.map((leg) => {
-        const legItems = items.filter((i) => i.legSlug === leg.slug);
+        const legItems = actionItems.filter((i) => i.legSlug === leg.slug);
         if (legItems.length === 0) return null;
         return (
           <div key={leg.slug} className="space-y-3">
