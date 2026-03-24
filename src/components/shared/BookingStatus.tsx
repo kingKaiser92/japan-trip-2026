@@ -1,14 +1,19 @@
-import { Badge } from "@/components/ui/badge";
 import type { BookingStatus as BookingStatusType } from "@/data/types";
 
 const config: Record<BookingStatusType, { label: string; className: string }> = {
-  booked: { label: "Booked", className: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" },
-  pending: { label: "Pending", className: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200" },
-  "walk-in": { label: "Walk-in", className: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" },
-  "no-reservation": { label: "No Reservation", className: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300" },
+  booked: { label: "Booked", className: "bg-surface-container-low text-on-surface" },
+  pending: { label: "Pending", className: "bg-cherry-fixed text-cherry-dark" },
+  "walk-in": { label: "Walk-in", className: "bg-surface-container-high text-on-surface-variant" },
+  "no-reservation": { label: "No Reservation", className: "bg-surface-container text-on-surface-variant" },
 };
 
 export function BookingStatusBadge({ status }: { status: BookingStatusType }) {
   const { label, className } = config[status];
-  return <Badge variant="secondary" className={className}>{label}</Badge>;
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${className}`}>
+      {status === "booked" && <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-green-500" />}
+      {status === "pending" && <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-cherry" />}
+      {label}
+    </span>
+  );
 }

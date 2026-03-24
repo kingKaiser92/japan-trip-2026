@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { CategoryIcon } from "@/components/shared/CategoryIcon";
 import { MapLink } from "@/components/shared/MapLink";
 import { BookingStatusBadge } from "@/components/shared/BookingStatus";
-import { Badge } from "@/components/ui/badge";
 import type { Activity } from "@/data/types";
 
 export function ActivityCard({ activity }: { activity: Activity }) {
@@ -15,54 +14,50 @@ export function ActivityCard({ activity }: { activity: Activity }) {
   return (
     <div
       className={cn(
-        "rounded-xl border transition-all",
+        "rounded-xl transition-all duration-400",
         activity.isOptional
-          ? "border-dashed border-gray-300 dark:border-gray-700"
-          : "border-gray-200 dark:border-gray-800",
-        open ? "bg-white shadow-md dark:bg-gray-900" : "bg-white dark:bg-gray-900/50"
+          ? "bg-surface-container-low/50"
+          : "bg-surface-container-lowest",
+        open && "shadow-ambient"
       )}
     >
       <button
         onClick={() => setOpen(!open)}
-        className="flex w-full items-start gap-3 p-3 text-left"
+        className="flex w-full items-start gap-4 p-4 text-left"
       >
-        {/* Time column */}
-        <div className="flex flex-col items-center pt-0.5">
-          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-            {activity.isApproximate && "~"}
-            {activity.time}
-          </span>
-        </div>
-
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <CategoryIcon category={activity.category} />
-            <span className="font-medium text-gray-900 dark:text-gray-100 text-sm leading-tight">
+          <div className="flex items-center gap-2.5">
+            <CategoryIcon category={activity.category} className="h-4 w-4 shrink-0" />
+            <span className="font-serif font-medium text-on-surface text-[15px] leading-tight">
               {activity.name}
             </span>
           </div>
+          <div className="mt-1.5 flex items-center gap-2 text-[11px] uppercase tracking-wider text-on-surface-variant">
+            <span>{activity.isApproximate && "~"}{activity.time}</span>
+            {activity.isOptional && (
+              <span className="text-on-surface-variant/60">Optional</span>
+            )}
+          </div>
           {!open && (
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+            <p className="mt-2 text-sm text-on-surface-variant leading-relaxed line-clamp-2">
               {activity.notes}
             </p>
           )}
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {activity.isOptional && (
-              <Badge variant="outline" className="text-xs px-1.5 py-0">Optional</Badge>
-            )}
+          {/* Badges row */}
+          <div className="mt-2 flex flex-wrap gap-1.5">
             {activity.bookingStatus && (
               <BookingStatusBadge status={activity.bookingStatus} />
             )}
             {activity.recSource === "asif" && (
-              <Badge variant="secondary" className="text-xs px-1.5 py-0 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+              <span className="inline-flex items-center rounded-full bg-cherry-fixed px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-cherry-dark">
                 Asif&apos;s Rec
-              </Badge>
+              </span>
             )}
             {activity.recSource === "may-ann" && (
-              <Badge variant="secondary" className="text-xs px-1.5 py-0 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              <span className="inline-flex items-center rounded-full bg-surface-container-high px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-on-surface-variant">
                 May Ann&apos;s Rec
-              </Badge>
+              </span>
             )}
           </div>
         </div>
@@ -70,7 +65,7 @@ export function ActivityCard({ activity }: { activity: Activity }) {
         {/* Chevron */}
         <ChevronDown
           className={cn(
-            "h-4 w-4 shrink-0 text-gray-400 transition-transform",
+            "h-4 w-4 shrink-0 text-on-surface-variant/40 transition-transform duration-400",
             open && "rotate-180"
           )}
         />
@@ -78,33 +73,34 @@ export function ActivityCard({ activity }: { activity: Activity }) {
 
       {/* Expanded content */}
       {open && (
-        <div className="border-t border-gray-100 dark:border-gray-800 px-3 pb-3 pt-2 space-y-2">
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+        <div className="px-4 pb-5 pt-0 space-y-3">
+          <p className="text-sm text-on-surface-variant leading-[1.7]">
             {activity.notes}
           </p>
-          <div className="flex flex-wrap items-center gap-3 text-sm">
+          <div className="flex flex-wrap items-center gap-4 text-sm">
             {activity.mapsQuery && <MapLink query={activity.mapsQuery} />}
             {activity.rating && (
-              <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                ⭐ {activity.rating}
+              <span className="text-on-surface-variant text-xs uppercase tracking-wider">
+                {activity.rating}
               </span>
             )}
             {activity.hours && (
-              <span className="text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" /> {activity.hours}
+              <span className="text-on-surface-variant/60 flex items-center gap-1 text-xs">
+                <Clock className="h-3 w-3" /> {activity.hours}
               </span>
             )}
             {activity.price && (
-              <span className="text-gray-500 dark:text-gray-400">
+              <span className="text-on-surface-variant text-xs">
                 {activity.price}
               </span>
             )}
           </div>
           {activity.confirmationCode && (
-            <div className="rounded-lg bg-green-50 dark:bg-green-950 px-3 py-2 text-sm">
-              <span className="font-medium text-green-800 dark:text-green-200">
-                Confirmation: {activity.confirmationCode}
-              </span>
+            <div className="rounded-lg bg-surface-container-low px-4 py-3 text-sm">
+              <span className="text-[10px] uppercase tracking-wider text-on-surface-variant">Confirmation</span>
+              <p className="mt-0.5 font-medium text-on-surface">
+                {activity.confirmationCode}
+              </p>
             </div>
           )}
         </div>

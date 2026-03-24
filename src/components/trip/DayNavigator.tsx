@@ -15,20 +15,20 @@ export function DayNavigator({ currentDayNumber }: { currentDayNumber: number })
       {prevDay ? (
         <Link
           href={`/day/${prevDay}`}
-          className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+          className="flex items-center gap-1 text-sm text-on-surface-variant hover:text-on-surface"
         >
           <ChevronLeft className="h-4 w-4" />
-          Day {prevDay}
+          <span className="text-xs uppercase tracking-wider">Day {prevDay}</span>
         </Link>
       ) : (
-        <div className="w-20" />
+        <div className="w-16" />
       )}
 
       <div className="text-center">
-        <div className="text-sm font-bold text-gray-900 dark:text-gray-100">
+        <div className="font-serif text-lg font-semibold text-on-surface">
           Day {currentDayNumber}
         </div>
-        <div className="text-xs text-gray-500 dark:text-gray-400">
+        <div className="text-[11px] uppercase tracking-wider text-on-surface-variant">
           {formatDate(day.date)}
         </div>
       </div>
@@ -36,13 +36,13 @@ export function DayNavigator({ currentDayNumber }: { currentDayNumber: number })
       {nextDay ? (
         <Link
           href={`/day/${nextDay}`}
-          className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+          className="flex items-center gap-1 text-sm text-on-surface-variant hover:text-on-surface"
         >
-          Day {nextDay}
+          <span className="text-xs uppercase tracking-wider">Day {nextDay}</span>
           <ChevronRight className="h-4 w-4" />
         </Link>
       ) : (
-        <div className="w-20" />
+        <div className="w-16" />
       )}
     </div>
   );

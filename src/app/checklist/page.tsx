@@ -2,7 +2,8 @@
 
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { legs } from "@/data/legs";
-import { CheckSquare, Square } from "lucide-react";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ChecklistItem {
   id: string;
@@ -57,21 +58,22 @@ export default function ChecklistPage() {
 
   const completedCount = checked.length;
   const totalCount = items.length;
+  const progress = (completedCount / totalCount) * 100;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          Booking Checklist
-        </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          {completedCount}/{totalCount} completed
+    <div className="space-y-10">
+      <div className="space-y-3 pt-4">
+        <p className="text-[11px] uppercase tracking-[0.2em] text-on-surface-variant">
+          {completedCount} of {totalCount} completed
         </p>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight text-on-surface">
+          Checklist
+        </h1>
         {/* Progress bar */}
-        <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
+        <div className="h-1 w-full overflow-hidden rounded-full bg-surface-container-high">
           <div
-            className="h-full rounded-full bg-red-600 transition-all duration-300"
-            style={{ width: `${(completedCount / totalCount) * 100}%` }}
+            className="h-full rounded-full bg-cherry-dim transition-all duration-400"
+            style={{ width: `${progress}%` }}
           />
         </div>
       </div>
@@ -80,8 +82,8 @@ export default function ChecklistPage() {
         const legItems = items.filter((i) => i.legSlug === leg.slug);
         if (legItems.length === 0) return null;
         return (
-          <div key={leg.slug} className="space-y-2">
-            <h2 className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+          <div key={leg.slug} className="space-y-3">
+            <h2 className="flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] text-on-surface-variant">
               <span>{leg.icon}</span> {leg.title}
             </h2>
             <div className="space-y-1">
@@ -91,19 +93,25 @@ export default function ChecklistPage() {
                   <button
                     key={item.id}
                     onClick={() => toggle(item.id)}
-                    className="flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+                    className="flex w-full items-center gap-3.5 rounded-lg px-3 py-3 text-left transition-all duration-400 hover:bg-surface-container-low"
                   >
-                    {isChecked ? (
-                      <CheckSquare className="h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
-                    ) : (
-                      <Square className="h-5 w-5 shrink-0 text-gray-400" />
-                    )}
-                    <span
-                      className={`text-sm ${
+                    <div
+                      className={cn(
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-all duration-400",
                         isChecked
-                          ? "text-gray-400 line-through dark:text-gray-500"
-                          : "text-gray-900 dark:text-gray-100"
-                      }`}
+                          ? "bg-on-surface"
+                          : "bg-surface-container-high"
+                      )}
+                    >
+                      {isChecked && <Check className="h-3 w-3 text-surface" />}
+                    </div>
+                    <span
+                      className={cn(
+                        "text-sm transition-all duration-400",
+                        isChecked
+                          ? "text-on-surface-variant/40 line-through"
+                          : "text-on-surface"
+                      )}
                     >
                       {item.text}
                     </span>

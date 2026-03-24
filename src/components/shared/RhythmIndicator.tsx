@@ -1,15 +1,18 @@
-import { Badge } from "@/components/ui/badge";
 import type { DayRhythm } from "@/data/types";
 
 const config: Record<DayRhythm, { label: string; className: string }> = {
-  packed: { label: "PACKED", className: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200" },
-  moderate: { label: "Moderate", className: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200" },
-  chill: { label: "Chill", className: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200" },
-  arrival: { label: "Arrival", className: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200" },
-  departure: { label: "Departure", className: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-200" },
+  packed: { label: "Packed", className: "bg-cherry-fixed text-cherry-dark" },
+  moderate: { label: "Moderate", className: "bg-surface-container-high text-on-surface-variant" },
+  chill: { label: "Chill", className: "bg-surface-container-low text-on-surface-variant" },
+  arrival: { label: "Arrival", className: "bg-surface-container-high text-on-surface-variant" },
+  departure: { label: "Departure", className: "bg-surface-container-high text-on-surface-variant" },
 };
 
 export function RhythmIndicator({ rhythm }: { rhythm: DayRhythm }) {
   const { label, className } = config[rhythm];
-  return <Badge variant="secondary" className={className}>{label}</Badge>;
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${className}`}>
+      {label}
+    </span>
+  );
 }

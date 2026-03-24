@@ -7,10 +7,10 @@ export function MapLink({ query }: { query: string }) {
       href={getGoogleMapsUrl(query)}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 text-sm text-red-600 hover:text-red-700 dark:text-red-400 font-medium"
+      className="inline-flex items-center gap-1.5 text-sm text-on-surface-variant hover:text-on-surface border-b border-cherry/40 pb-0.5"
     >
       <MapPin className="h-3.5 w-3.5" />
-      Open in Maps
+      <span>Open in Maps</span>
     </a>
   );
 }

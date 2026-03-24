@@ -19,8 +19,8 @@ export function MobileNav() {
   const currentDay = useCurrentDay();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/95 md:hidden">
-      <div className="flex items-center justify-around px-2 py-1">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 glass md:hidden">
+      <div className="flex items-center justify-around px-2 py-2">
         {navItems.map((item) => {
           const href = item.isDynamic ? `/day/${currentDay || 1}` : item.href;
           const isActive = item.isDynamic
@@ -33,13 +33,13 @@ export function MobileNav() {
               key={item.label}
               href={href}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-2 text-xs transition-colors",
+                "flex flex-col items-center gap-1 px-3 py-1.5 text-[10px] tracking-wide uppercase",
                 isActive
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                  ? "text-on-surface"
+                  : "text-on-surface-variant"
               )}
             >
-              <Icon className="h-5 w-5" />
+              <Icon className={cn("h-5 w-5", isActive && "text-cherry-dim")} />
               <span>{item.isDynamic && currentDay ? "Today" : item.label}</span>
             </Link>
           );
