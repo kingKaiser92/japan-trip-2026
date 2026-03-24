@@ -16,9 +16,20 @@ const notoSerif = Noto_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Japan Trip 2026",
-  description: "Interactive itinerary for Japan Trip — April 11–23, 2026",
+  title: "Japan 2026 — Interactive Itinerary",
+  description: "13 days across Tokyo, Mt. Fuji, Kyoto & Osaka. Temples, street food, hidden bars, and more.",
   manifest: "/manifest.json",
+  openGraph: {
+    title: "Japan 2026",
+    description: "13 days across Tokyo, Mt. Fuji, Kyoto & Osaka.",
+    siteName: "Japan Trip 2026",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Japan 2026",
+    description: "13 days across Tokyo, Mt. Fuji, Kyoto & Osaka.",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
