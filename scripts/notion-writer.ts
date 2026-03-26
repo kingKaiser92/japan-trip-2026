@@ -1,6 +1,6 @@
 import { writeFileSync } from "fs";
 import { join } from "path";
-import type { ParsedDay, ParsedActivity, ParsedTraining, ParsedActionItem, ParsedAccommodation } from "./notion-parser";
+import type { ParsedDay, ParsedActivity, ParsedTraining, ParsedActionItem, ParsedAccommodation, ParsedRecommendation } from "./notion-parser";
 
 const DATA_DIR = join(__dirname, "..", "src", "data");
 
@@ -141,4 +141,81 @@ export function writeActionItemsFile(items: ParsedActionItem[]): void {
 
   content += "];\n";
   writeFileSync(join(DATA_DIR, "actionItems.ts"), content, "utf-8");
+}
+
+export function writeRecommendationsFile(recs: ParsedRecommendation[]): void {
+  // Deduplicate by normalized name (strip parentheticals, emojis, extra whitespace)
+  const seen = new Set<string>();
+  const unique = recs.filter((r) => {
+    const key = r.name
+      .toLowerCase()
+      .replace(/\s*\([^)]*\)\s*/g, "")  // strip (Day 3), (Osaka), etc.
+      .replace(/[^\w\s]/g, "")           // strip special chars
+      .replace(/\s+/g, " ")
+      .trim();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  let content = '// Auto-generated from Notion sync — do not edit manually\n';
+  content += 'import type { FoodSpot, RecSource } from "./restaurants";\n\n';
+  content += "export interface NotionRec {\n";
+  content += "  id: string;\n";
+  content += "  name: string;\n";
+  content += "  description: string;\n";
+  content += "  location: string;\n";
+  content += "  neighborhood: string;\n";
+  content += "  hours: string;\n";
+  content += "  legSlug: string;\n";
+  content += '  category: "restaurant" | "cafe" | "bar" | "street-food" | "shop" | "experience";\n';
+  content += "  cuisine?: string;\n";
+  content += "  recSource: RecSource;\n";
+  content += "  mapsQuery: string;\n";
+  content += "  bestFor?: string;\n";
+  content += "  nearWhat?: string;\n";
+  content += "}\n\n";
+  content += "export const notionRecs: NotionRec[] = [\n";
+
+  for (const rec of unique) {
+    content += "  {\n";
+    content += `    id: "${esc(rec.id)}",\n`;
+    content += `    name: "${esc(rec.name)}",\n`;
+    content += `    description: "${esc(rec.description)}",\n`;
+    content += `    location: "${esc(rec.location)}",\n`;
+    content += `    neighborhood: "${esc(rec.neighborhood)}",\n`;
+    content += `    hours: "Check hours",\n`;
+    content += `    legSlug: "${esc(rec.legSlug)}",\n`;
+    content += `    category: "${rec.category}",\n`;
+    if (rec.cuisine) content += `    cuisine: "${esc(rec.cuisine)}",\n`;
+    content += `    recSource: "${rec.recSource}",\n`;
+    content += `    mapsQuery: "${esc(rec.mapsQuery)}",\n`;
+    if (rec.bestFor) content += `    bestFor: "${esc(rec.bestFor)}",\n`;
+    if (rec.nearWhat) content += `    nearWhat: "${esc(rec.nearWhat)}",\n`;
+    content += "  },\n";
+  }
+
+  content += "];\n\n";
+
+  // Helper to convert NotionRec to FoodSpot format for merging
+  content += "/** Convert Notion recs to FoodSpot format for unified display */\n";
+  content += "export function recsAsFoodSpots(): FoodSpot[] {\n";
+  content += '  return notionRecs\n';
+  content += '    .filter((r) => r.category !== "shop" && r.category !== "experience")\n';
+  content += "    .map((r) => ({\n";
+  content += "      id: r.id,\n";
+  content += "      name: r.name,\n";
+  content += "      description: r.description,\n";
+  content += "      location: r.location,\n";
+  content += "      neighborhood: r.neighborhood,\n";
+  content += "      hours: r.hours,\n";
+  content += "      legSlug: r.legSlug,\n";
+  content += '      category: r.category as FoodSpot["category"],\n';
+  content += "      recSource: r.recSource,\n";
+  content += "      mapsQuery: r.mapsQuery,\n";
+  content += "      cuisine: r.cuisine,\n";
+  content += "    }));\n";
+  content += "}\n";
+
+  writeFileSync(join(DATA_DIR, "notionRecs.ts"), content, "utf-8");
 }

@@ -51,6 +51,21 @@ export interface ParsedActionItem {
   completed: boolean;
 }
 
+export interface ParsedRecommendation {
+  id: string;
+  name: string;
+  description: string;
+  location: string;
+  neighborhood: string;
+  legSlug: string;
+  recSource: RecSource;
+  category: "restaurant" | "cafe" | "bar" | "street-food" | "shop" | "experience";
+  cuisine?: string;
+  mapsQuery: string;
+  bestFor?: string;
+  nearWhat?: string;
+}
+
 export interface ParsedAccommodation {
   name: string;
   address: string;
@@ -70,6 +85,7 @@ export interface ParsedLeg {
   dayNumbers: number[];
   days: ParsedDay[];
   actionItems: ParsedActionItem[];
+  recommendations: ParsedRecommendation[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────
@@ -192,9 +208,10 @@ export function parseLegPage(
   blocks: BlockObjectResponse[],
   legSlug: string,
   legTitle: string
-): { days: ParsedDay[]; actionItems: ParsedActionItem[]; accommodation: ParsedAccommodation } {
+): { days: ParsedDay[]; actionItems: ParsedActionItem[]; accommodation: ParsedAccommodation; recommendations: ParsedRecommendation[] } {
   const days: ParsedDay[] = [];
   const actionItems: ParsedActionItem[] = [];
+  const recommendations: ParsedRecommendation[] = [];
   let accommodation: ParsedAccommodation = { name: "", address: "", mapsQuery: "" };
 
   let currentDay: ParsedDay | null = null;
@@ -203,6 +220,7 @@ export function parseLegPage(
   let pendingTrainingText: string | null = null;
   let inActionItems = false;
   let activityCounter = 0;
+  let recTableHeaderCols: string[] = [];
 
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
@@ -255,10 +273,11 @@ export function parseLegPage(
         continue;
       }
 
-      // Friend Recs section
-      if (/friend rec|asif.*rec|may ann/i.test(text)) {
+      // Friend Recs section — match any heading that references a recommender
+      if (/friend rec|asif|may ann|additional.*rec|rec.*additional/i.test(text)) {
         recContext = text;
         inActionItems = false;
+        currentDay = null;
         continue;
       }
 
@@ -286,7 +305,7 @@ export function parseLegPage(
       if (/nightlife|bar/i.test(text)) sectionContext = "nightlife";
       else if (/shopping/i.test(text)) sectionContext = "shopping";
       else if (/sightseeing/i.test(text)) sectionContext = "sightseeing";
-      else if (/rec booking|asif/i.test(text)) recContext = text;
+      else if (/rec|asif|may ann|additional/i.test(text)) { recContext = text; currentDay = null; }
       else sectionContext = text;
       continue;
     }
@@ -409,17 +428,67 @@ export function parseLegPage(
         activityCounter++;
       }
 
-      // Friend rec table rows (Spot | What It Is | Where | Best Fit | Near What)
+      // Friend rec table rows — parse into recommendations
       if (recContext && cells.length >= 2 && !currentDay) {
-        // These are standalone rec tables outside of day context — skip for now
-        // They're supplementary and not part of the main timeline
+        // Detect header row for rec tables
+        const firstLower = cells[0]?.toLowerCase().trim() || "";
+        if (firstLower === "spot" || firstLower === "restaurant" || firstLower === "store" ||
+            firstLower === "place" || firstLower === "what" || firstLower === "activity" ||
+            firstLower === "destination" || firstLower === "how to book" ||
+            firstLower === "" || firstLower === "chain") {
+          recTableHeaderCols = cells.map((c) => c.toLowerCase().trim());
+          continue;
+        }
+
+        let spotName = cleanName(cells[0] || "");
+        if (!spotName) continue;
+
+        // Strip emoji prefixes (🟡, etc.)
+        spotName = spotName.replace(/^[\u{1F300}-\u{1FFFF}\u{2600}-\u{27FF}\u{FE00}-\u{FEFF}]\s*/u, "").trim();
+
+        // Skip obvious junk/header entries
+        if (/^(how to book|details|key stores|getting there|what it is|specialty)/i.test(spotName)) continue;
+        // Skip generic location entries (e.g., "Shinjuku", "Harajuku / Omotesando")
+        if (/^(shinjuku|harajuku|shibuya|ginza|omotesando|nakameguro)(\s*\/\s*\w+)?$/i.test(spotName)) continue;
+        // Skip entries that are instructions, not places
+        if (spotName.length > 80) continue;
+
+        const whatItIs = cells[1]?.trim() || "";
+        const where = cells[2]?.trim() || "";
+        const bestFor = cells[3]?.trim() || "";
+        const nearWhat = cells[4]?.trim() || "";
+
+        const recSource = inferRecSource(recContext) || "personal";
+
+        // Infer category from description + all columns
+        const combined = (spotName + " " + whatItIs + " " + where).toLowerCase();
+        let category: ParsedRecommendation["category"] = "restaurant";
+        if (/bar\b|cocktail|sake\b|speakeasy|drinks?|record bar/i.test(combined)) category = "bar";
+        else if (/cafe|coffee|latte|matcha|donut|pastry|bakery|pancake|dessert|parfait|mochi|toast/i.test(combined)) category = "cafe";
+        else if (/street food|takoyaki|stall|stand\b/i.test(combined)) category = "street-food";
+        else if (/shop|store|vintage|clothing|fashion|retail|mall|arcade|outlet|resell|kindal|komehyo|brand off|ragtag|rinkan|beams|united arrows|dover street|le labo|perfume|yukatas?|textile/i.test(combined)) category = "shop";
+        else if (/temple|shrine|museum|park|experience|onsen|train\b|boat ride|scenic|street$/i.test(combined)) category = "experience";
+
+        recommendations.push({
+          id: `rec-${legSlug}-${slugify(spotName)}`,
+          name: spotName,
+          description: whatItIs,
+          location: where || legSlug,
+          neighborhood: where || legSlug,
+          legSlug,
+          recSource,
+          category,
+          mapsQuery: spotName + (where ? `, ${where}` : ""),
+          bestFor: bestFor || undefined,
+          nearWhat: nearWhat || undefined,
+        });
       }
 
       continue;
     }
   }
 
-  return { days, actionItems, accommodation };
+  return { days, actionItems, accommodation, recommendations };
 }
 
 // ─── Main Page Parsing ───────────────────────────────────────

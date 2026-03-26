@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { foodSpots, type FoodCategory } from "@/data/restaurants";
+import { foodSpots, type FoodCategory, type FoodSpot } from "@/data/restaurants";
 import { legs } from "@/data/legs";
+import { recsAsFoodSpots } from "@/data/notionRecs";
 import { MapLink } from "@/components/shared/MapLink";
 import { Utensils, Coffee, Wine, UtensilsCrossed } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,7 +23,14 @@ export default function FoodPage() {
   const [categoryFilter, setCategoryFilter] = useState<FilterType>("all");
   const [legFilter, setLegFilter] = useState<LegFilter>("all");
 
-  let filtered = foodSpots;
+  // Merge handcoded spots with Notion-synced recs, deduplicating by name
+  const allSpots: FoodSpot[] = (() => {
+    const existingNames = new Set(foodSpots.map((s) => s.name.toLowerCase()));
+    const notionExtra = recsAsFoodSpots().filter((r) => !existingNames.has(r.name.toLowerCase()));
+    return [...foodSpots, ...notionExtra];
+  })();
+
+  let filtered = allSpots;
   if (categoryFilter !== "all") filtered = filtered.filter((s) => s.category === categoryFilter);
   if (legFilter !== "all") filtered = filtered.filter((s) => s.legSlug === legFilter);
 
@@ -141,14 +149,19 @@ export default function FoodPage() {
                               </p>
                               <div className="flex flex-wrap items-center gap-3">
                                 <MapLink query={spot.mapsQuery} />
-                                {spot.recSource === "asif" && (
-                                  <span className="inline-flex items-center rounded-full bg-cherry-fixed px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-cherry-dark">
-                                    Asif&apos;s Rec
+                                {spot.recSource && spot.recSource !== "personal" && (
+                                  <span className={cn(
+                                    "inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider",
+                                    spot.recSource === "asif"
+                                      ? "bg-cherry-fixed text-cherry-dark"
+                                      : "bg-surface-container-high text-on-surface-variant"
+                                  )}>
+                                    {spot.recSource === "asif" ? "Asif's" : spot.recSource === "may-ann" ? "May Ann's" : `${String(spot.recSource)}'s`} Rec
                                   </span>
                                 )}
-                                {spot.recSource === "may-ann" && (
+                                {spot.recSource === "personal" && (
                                   <span className="inline-flex items-center rounded-full bg-surface-container-high px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-on-surface-variant">
-                                    May Ann&apos;s Rec
+                                    Personal Pick
                                   </span>
                                 )}
                               </div>

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { shops } from "@/data/shops";
+import { shops, type ShopItem } from "@/data/shops";
 import { legs } from "@/data/legs";
+import { notionRecs } from "@/data/notionRecs";
 import { MapLink } from "@/components/shared/MapLink";
 import { ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,7 +13,26 @@ type LegFilter = "all" | string;
 
 export default function ShoppingPage() {
   const [legFilter, setLegFilter] = useState<LegFilter>("all");
-  const filtered = legFilter === "all" ? shops : shops.filter((s) => s.legSlug === legFilter);
+  // Merge handcoded shops with Notion-synced shop recs
+  const allShops: ShopItem[] = (() => {
+    const existingNames = new Set(shops.map((s) => s.name.toLowerCase()));
+    const notionShops = notionRecs
+      .filter((r) => r.category === "shop" && !existingNames.has(r.name.toLowerCase()))
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        description: r.description,
+        location: r.location,
+        hours: r.hours,
+        legSlug: r.legSlug,
+        neighborhood: r.neighborhood,
+        mapsQuery: r.mapsQuery,
+        recSource: r.recSource,
+      }));
+    return [...shops, ...notionShops];
+  })();
+
+  const filtered = legFilter === "all" ? allShops : allShops.filter((s) => s.legSlug === legFilter);
 
   // Group by leg
   const groupedByLeg = legs
@@ -108,7 +128,19 @@ export default function ShoppingPage() {
                             <p className="text-sm text-on-surface-variant leading-relaxed">
                               {shop.description}
                             </p>
-                            <MapLink query={shop.mapsQuery} />
+                            <div className="flex flex-wrap items-center gap-3">
+                              <MapLink query={shop.mapsQuery} />
+                              {shop.recSource && shop.recSource !== "personal" && (
+                                <span className={cn(
+                                  "inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider",
+                                  shop.recSource === "asif"
+                                    ? "bg-cherry-fixed text-cherry-dark"
+                                    : "bg-surface-container-high text-on-surface-variant"
+                                )}>
+                                  {shop.recSource === "asif" ? "Asif's" : shop.recSource === "may-ann" ? "May Ann's" : `${String(shop.recSource)}'s`} Rec
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>

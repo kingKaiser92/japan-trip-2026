@@ -6,8 +6,8 @@ config({ path: resolve(__dirname, "..", ".env.local") });
 import { Client } from "@notionhq/client";
 import type { BlockObjectResponse } from "@notionhq/client/build/src/api-endpoints";
 import { NOTION_PAGES, LEG_META } from "./notion-config";
-import { parseLegPage, type ParsedDay, type ParsedActionItem } from "./notion-parser";
-import { writeDaysFile, writeLegsFile, writeTripFile, writeActionItemsFile } from "./notion-writer";
+import { parseLegPage, type ParsedDay, type ParsedActionItem, type ParsedRecommendation } from "./notion-parser";
+import { writeDaysFile, writeLegsFile, writeTripFile, writeActionItemsFile, writeRecommendationsFile } from "./notion-writer";
 
 const NOTION_API_KEY = process.env.NOTION_API_KEY;
 
@@ -74,6 +74,7 @@ async function main() {
 
   const allDays: ParsedDay[] = [];
   const allActionItems: ParsedActionItem[] = [];
+  const allRecommendations: ParsedRecommendation[] = [];
   const legData: {
     slug: string;
     title: string;
@@ -98,10 +99,11 @@ async function main() {
     console.log(`    → ${blocks.length} blocks`);
 
     const result = parseLegPage(blocks, slug, meta.title);
-    console.log(`    → ${result.days.length} days, ${result.days.reduce((n, d) => n + d.activities.length, 0)} activities, ${result.actionItems.length} action items`);
+    console.log(`    → ${result.days.length} days, ${result.days.reduce((n, d) => n + d.activities.length, 0)} activities, ${result.actionItems.length} action items, ${result.recommendations.length} recs`);
 
     allDays.push(...result.days);
     allActionItems.push(...result.actionItems);
+    allRecommendations.push(...result.recommendations);
 
     // Build leg entry
     const dayNumbers = result.days.map((d) => d.dayNumber);
@@ -158,9 +160,12 @@ async function main() {
   writeActionItemsFile(allActionItems);
   console.log("    ✓ src/data/actionItems.ts");
 
+  writeRecommendationsFile(allRecommendations);
+  console.log(`    ✓ src/data/notionRecs.ts (${allRecommendations.length} recs)`);
+
   // Summary
   const totalActivities = finalDays.reduce((n, d) => n + d.activities.length, 0);
-  console.log(`\n✅ Synced: ${finalDays.length} days, ${totalActivities} activities, ${allActionItems.length} action items\n`);
+  console.log(`\n✅ Synced: ${finalDays.length} days, ${totalActivities} activities, ${allActionItems.length} action items, ${allRecommendations.length} recommendations\n`);
 }
 
 main().catch((err) => {
