@@ -19,6 +19,20 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo.
+echo  Checking coordinates coverage...
+echo.
+call npx tsx scripts/check-coords.ts
+
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo  WARNING: Some items are missing coordinates!
+    echo  They won't appear on the map or nearby page.
+    echo  Add their lat/lng to src/data/coordinates.ts
+    echo.
+    pause
+)
+
+echo.
 echo  Committing and pushing to GitHub...
 echo.
 git add src/data/
