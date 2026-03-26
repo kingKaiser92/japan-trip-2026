@@ -8,6 +8,7 @@ import {
   Utensils,
   ShoppingBag,
   MoreHorizontal,
+  Crosshair,
   MapPin,
   Dumbbell,
   BookOpen,
@@ -27,6 +28,7 @@ const primaryNav = [
 ];
 
 const moreNav = [
+  { href: "/nearby", icon: Crosshair, label: "Nearby" },
   { href: "/map", icon: MapPin, label: "Map" },
   { href: "/bookings", icon: Ticket, label: "Bookings" },
   { href: "/training", icon: Dumbbell, label: "Training" },
