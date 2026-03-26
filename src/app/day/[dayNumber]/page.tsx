@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { days } from "@/data/days";
 import { legs } from "@/data/legs";
 import { formatDate } from "@/lib/dates";
-import { DayTimeline } from "@/components/trip/DayTimeline";
+import { DayContent } from "@/components/trip/DayContent";
 import { DayNavigator } from "@/components/trip/DayNavigator";
 import { RhythmIndicator } from "@/components/shared/RhythmIndicator";
 import { Dumbbell } from "lucide-react";
@@ -25,6 +25,7 @@ export default async function DayPage({ params }: { params: Promise<{ dayNumber:
   if (!day) return notFound();
 
   const leg = legs.find((l) => l.slug === day.legSlug)!;
+  const nextDay = days.find((d) => d.dayNumber === dayNumber + 1) ?? null;
 
   return (
     <div className="space-y-8">
@@ -69,8 +70,8 @@ export default async function DayPage({ params }: { params: Promise<{ dayNumber:
         </div>
       )}
 
-      {/* Timeline */}
-      <DayTimeline day={day} />
+      {/* Interactive content: Next Activity + List/Map toggle */}
+      <DayContent day={day} nextDay={nextDay} />
     </div>
   );
 }

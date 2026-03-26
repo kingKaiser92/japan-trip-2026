@@ -113,9 +113,13 @@
   html {
     @apply font-sans;
   }
-  /* Slow, deliberate transitions */
+  /* Slow, deliberate transitions + haptic press feedback */
   a, button {
     transition: all 400ms ease-out;
+  }
+  a:active, button:active {
+    transform: scale(0.98);
+    transition-duration: 100ms;
   }
 }
 

@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import { legs } from "@/data/legs";
 import { trip } from "@/data/trip";
 import { days } from "@/data/days";
+import { dayImages } from "@/data/dayImages";
 import { ChevronRight } from "lucide-react";
 import { formatDate } from "@/lib/dates";
 import { RhythmIndicator } from "@/components/shared/RhythmIndicator";
@@ -58,15 +60,31 @@ export default function HomePage() {
         <div className="space-y-3">
           {days.map((day) => {
             const leg = legs.find((l) => l.slug === day.legSlug)!;
+            const image = dayImages[day.dayNumber];
             return (
               <Link
                 key={day.dayNumber}
                 href={`/day/${day.dayNumber}`}
-                className="group flex items-center gap-4 rounded-xl bg-surface-container-lowest px-4 py-3.5 transition-all duration-400 hover:shadow-ambient"
+                className="group relative flex items-center gap-4 rounded-xl bg-surface-container-lowest px-4 py-3.5 transition-all duration-400 hover:shadow-ambient overflow-hidden"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-low font-serif text-sm font-semibold text-on-surface">
-                  {day.dayNumber}
-                </div>
+                {/* Thumbnail */}
+                {image && (
+                  <div className="relative h-12 w-12 shrink-0 rounded-lg overflow-hidden">
+                    <Image
+                      src={image.url}
+                      alt={image.alt}
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                {!image && (
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-container-low font-serif text-sm font-semibold text-on-surface">
+                    {day.dayNumber}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2.5">
                     <span className="font-serif text-[15px] font-medium text-on-surface truncate">
@@ -75,7 +93,7 @@ export default function HomePage() {
                     <RhythmIndicator rhythm={day.rhythm} />
                   </div>
                   <div className="text-[11px] uppercase tracking-[0.15em] text-on-surface-variant mt-0.5">
-                    {formatDate(day.date)} &middot; {leg.icon} {day.activities.length} activities
+                    Day {day.dayNumber} &middot; {formatDate(day.date)} &middot; {leg.icon} {day.activities.length} activities
                   </div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-on-surface-variant/20 group-hover:text-on-surface-variant/50 transition-colors duration-400 shrink-0" />
