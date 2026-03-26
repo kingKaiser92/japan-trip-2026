@@ -3,6 +3,9 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 
 interface MapMarker {
   lat: number;
@@ -97,7 +100,38 @@ export function TripMap({ markers, className = "", userPosition }: TripMapProps)
       }).addTo(map);
     }
 
-    // Add markers
+    // Add markers — use clustering when there are many pins
+    const useClustering = markers.length >= 6;
+    const clusterGroup = useClustering
+      ? L.markerClusterGroup({
+          maxClusterRadius: 40,
+          spiderfyOnMaxZoom: true,
+          showCoverageOnHover: false,
+          iconCreateFunction: (cluster) => {
+            const count = cluster.getChildCount();
+            return L.divIcon({
+              className: "custom-marker",
+              html: `<div style="
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: #e8a0bf;
+                border: 2px solid rgba(255,255,255,0.9);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: 700;
+                color: #1a1a1a;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+              ">${count}</div>`,
+              iconSize: [32, 32],
+              iconAnchor: [16, 16],
+            });
+          },
+        })
+      : null;
+
     markers.forEach((m) => {
       const color = getCategoryColor(m.category);
       const isFirstOrLast =
@@ -125,8 +159,7 @@ export function TripMap({ markers, className = "", userPosition }: TripMapProps)
         iconAnchor: [size / 2, size / 2],
       });
 
-      L.marker([m.lat, m.lng], { icon })
-        .addTo(map)
+      const marker = L.marker([m.lat, m.lng], { icon })
         .bindPopup(
           `<div style="font-family: serif; min-width: 160px;">
             <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #888; margin-bottom: 4px;">${m.time}</div>
@@ -137,7 +170,17 @@ export function TripMap({ markers, className = "", userPosition }: TripMapProps)
             closeButton: false,
           }
         );
+
+      if (clusterGroup) {
+        clusterGroup.addLayer(marker);
+      } else {
+        marker.addTo(map);
+      }
     });
+
+    if (clusterGroup) {
+      map.addLayer(clusterGroup);
+    }
 
     // Add user position marker (pulsing blue dot)
     if (userPosition) {

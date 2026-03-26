@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Serif } from "next/font/google";
 import { Header } from "@/components/layout/Header";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { ServiceWorkerRegistration } from "@/components/layout/ServiceWorkerRegistration";
 import "./globals.css";
 
 const inter = Inter({
@@ -18,6 +19,11 @@ const notoSerif = Noto_Serif({
 export const metadata: Metadata = {
   title: "Japan 2026 — Interactive Itinerary",
   description: "13 days across Tokyo, Mt. Fuji, Kyoto & Osaka. Temples, street food, hidden bars, and more.",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
+  },
   manifest: "/manifest.json",
   openGraph: {
     title: "Japan 2026",
@@ -60,6 +66,7 @@ export default function RootLayout({
           {children}
         </main>
         <MobileNav />
+        <ServiceWorkerRegistration />
       </body>
     </html>
   );
