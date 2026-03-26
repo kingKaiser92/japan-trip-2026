@@ -1,53 +1,23 @@
 "use client";
 
-import { useMemo } from "react";
 import Link from "next/link";
-import { Navigation, ChevronRight, PartyPopper } from "lucide-react";
+import { Navigation, ChevronRight, PartyPopper, Check } from "lucide-react";
 import { CategoryIcon } from "@/components/shared/CategoryIcon";
 import { getGoogleMapsUrl } from "@/lib/maps";
-import { cn } from "@/lib/utils";
 import type { TripDay, Activity } from "@/data/types";
 
-function parseActivityTime(time: string): number {
-  const s = time.trim().toLowerCase();
-  const match = s.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/);
-  if (!match) return -1;
-  let hours = parseInt(match[1], 10);
-  const minutes = parseInt(match[2], 10);
-  const period = match[3];
-  if (period === "pm" && hours !== 12) hours += 12;
-  if (period === "am" && hours === 12) hours = 0;
-  return hours * 60 + minutes;
+interface NextActivityCardProps {
+  day: TripDay;
+  nextDay?: TripDay | null;
+  completedIds: Set<string>;
+  onComplete: (id: string) => void;
 }
 
-function getJSTMinutes(): number {
-  const now = new Date();
-  const jstOffset = 9 * 60;
-  const utcMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
-  return ((utcMinutes + jstOffset) % 1440 + 1440) % 1440;
-}
-
-export function NextActivityCard({ day, nextDay }: { day: TripDay; nextDay?: TripDay | null }) {
-  const { current, next } = useMemo(() => {
-    const nowMinutes = getJSTMinutes();
-
-    // Find the next upcoming activity (first one that hasn't started yet)
-    const upcoming = day.activities
-      .map((a, i) => ({ activity: a, index: i, minutes: parseActivityTime(a.time) }))
-      .filter((a) => a.minutes >= 0);
-
-    const nextIdx = upcoming.findIndex((a) => a.minutes > nowMinutes);
-
-    if (nextIdx === -1) {
-      // All activities are past — day is complete
-      return { current: null, next: null };
-    }
-
-    const currentActivity = upcoming[nextIdx].activity;
-    const followUp = nextIdx + 1 < upcoming.length ? upcoming[nextIdx + 1].activity : null;
-
-    return { current: currentActivity, next: followUp };
-  }, [day]);
+export function NextActivityCard({ day, nextDay, completedIds, onComplete }: NextActivityCardProps) {
+  // Find first non-completed activity
+  const remaining = day.activities.filter((a) => !completedIds.has(a.id));
+  const current = remaining[0] ?? null;
+  const next = remaining[1] ?? null;
 
   // Day complete state
   if (!current) {
@@ -97,18 +67,27 @@ export function NextActivityCard({ day, nextDay }: { day: TripDay; nextDay?: Tri
         </div>
       </div>
 
-      {/* Navigate button */}
-      {current.mapsQuery && (
-        <a
-          href={getGoogleMapsUrl(current.mapsQuery)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-on-surface py-3 text-[11px] font-medium uppercase tracking-wider text-surface transition-all duration-400 hover:shadow-ambient"
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        {current.mapsQuery && (
+          <a
+            href={getGoogleMapsUrl(current.mapsQuery)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-1 items-center justify-center gap-2 rounded-full bg-on-surface py-3 text-[11px] font-medium uppercase tracking-wider text-surface transition-all duration-400 hover:shadow-ambient"
+          >
+            <Navigation className="h-3.5 w-3.5" />
+            Navigate
+          </a>
+        )}
+        <button
+          onClick={() => onComplete(current.id)}
+          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-cherry-fixed py-3 text-[11px] font-medium uppercase tracking-wider text-cherry-dark transition-all duration-400 hover:shadow-ambient"
         >
-          <Navigation className="h-3.5 w-3.5" />
-          Navigate
-        </a>
-      )}
+          <Check className="h-3.5 w-3.5" />
+          Done
+        </button>
+      </div>
 
       {/* Following activity preview */}
       {next && (
