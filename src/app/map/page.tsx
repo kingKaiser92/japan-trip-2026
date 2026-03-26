@@ -16,6 +16,7 @@ import {
   Clock,
   ChevronRight,
 } from "lucide-react";
+import { useGeolocation } from "@/hooks/useGeolocation";
 
 // Dynamic import with SSR disabled (Leaflet requires window)
 const TripMap = dynamic(
@@ -56,6 +57,7 @@ function getMultiStopGoogleMapsUrl(
 
 export default function MapPage() {
   const [selectedDay, setSelectedDay] = useState(1);
+  const { position: userPosition } = useGeolocation();
   const day = days.find((d) => d.dayNumber === selectedDay)!;
   const leg = legs.find((l) => l.slug === day.legSlug)!;
   const activitiesWithLocation = day.activities.filter((a) => a.mapsQuery);
@@ -135,7 +137,7 @@ export default function MapPage() {
 
       {/* Interactive Map */}
       {markers.length > 0 ? (
-        <TripMap markers={markers} className="border border-surface-container-high" />
+        <TripMap markers={markers} userPosition={userPosition} className="border border-surface-container-high" />
       ) : (
         <div className="rounded-xl bg-surface-container-lowest h-[200px] flex items-center justify-center">
           <p className="text-on-surface-variant text-sm">

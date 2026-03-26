@@ -141,6 +141,12 @@
   background: rgba(196, 199, 199, 0.1);
 }
 
+/* Pulsing blue dot for user location on map */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
 /* Range slider — cherry themed */
 input[type="range"].cherry-slider {
   -webkit-appearance: none;

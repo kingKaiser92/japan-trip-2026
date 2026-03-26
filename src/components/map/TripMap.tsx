@@ -16,6 +16,7 @@ interface MapMarker {
 interface TripMapProps {
   markers: MapMarker[];
   className?: string;
+  userPosition?: { lat: number; lng: number } | null;
 }
 
 // Category to color mapping
@@ -38,7 +39,7 @@ function getCategoryColor(category: string): string {
   }
 }
 
-export function TripMap({ markers, className = "" }: TripMapProps) {
+export function TripMap({ markers, className = "", userPosition }: TripMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
 
@@ -138,9 +139,48 @@ export function TripMap({ markers, className = "" }: TripMapProps) {
         );
     });
 
-    // Fit bounds to show all markers
-    if (markers.length > 1) {
-      const bounds = L.latLngBounds(markers.map((m) => [m.lat, m.lng]));
+    // Add user position marker (pulsing blue dot)
+    if (userPosition) {
+      const userIcon = L.divIcon({
+        className: "custom-marker",
+        html: `<div style="
+          position: relative;
+          width: 16px;
+          height: 16px;
+        ">
+          <div style="
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            background: rgba(59, 130, 246, 0.2);
+            animation: pulse-ring 2s ease-out infinite;
+          "></div>
+          <div style="
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #3b82f6;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+          "></div>
+        </div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+      });
+
+      L.marker([userPosition.lat, userPosition.lng], { icon: userIcon, zIndexOffset: 1000 })
+        .addTo(map)
+        .bindPopup(
+          `<div style="font-family: serif; font-size: 14px; font-weight: 600; color: #1a1a1a;">You are here</div>`,
+          { className: "trip-popup", closeButton: false }
+        );
+    }
+
+    // Fit bounds to show all markers (+ user position)
+    const allPoints: L.LatLngExpression[] = markers.map((m) => [m.lat, m.lng]);
+    if (userPosition) allPoints.push([userPosition.lat, userPosition.lng]);
+    if (allPoints.length > 1) {
+      const bounds = L.latLngBounds(allPoints);
       map.fitBounds(bounds, { padding: [40, 40] });
     }
 
@@ -152,7 +192,7 @@ export function TripMap({ markers, className = "" }: TripMapProps) {
         mapInstanceRef.current = null;
       }
     };
-  }, [markers]);
+  }, [markers, userPosition]);
 
   return (
     <div
