@@ -57,9 +57,9 @@ export const dayImages: Record<number, DayImage> = {
     credit: "Jérémy Stenuit",
   },
   10: {
-    url: "https://images.unsplash.com/photo-1623341214825-9f4f963727da?w=600&q=80",
-    alt: "Osaka Dotonbori canal and neon signs",
-    credit: "Redd F",
+    url: "https://images.unsplash.com/photo-1590559899731-a382839e5549?w=600&q=80",
+    alt: "Osaka Shinsekai — Tsutenkaku Tower",
+    credit: "Alex Knight",
   },
   11: {
     url: "https://images.unsplash.com/photo-1551641506-ee5bf4cb45f1?w=600&q=80",
