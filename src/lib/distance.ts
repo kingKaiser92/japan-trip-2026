@@ -28,3 +28,13 @@ export function formatDistance(meters: number): string {
   if (meters < 1000) return `${Math.round(meters)}m`;
   return `${(meters / 1000).toFixed(1)}km`;
 }
+
+/**
+ * Convert meters to estimated walking time (~80m/min ≈ 5 km/h).
+ * Returns a human-readable string like "2 min walk" or "25 min walk".
+ */
+export function formatWalkingTime(meters: number): string {
+  const minutes = Math.round(meters / 80);
+  if (minutes < 1) return "1 min walk";
+  return `${minutes} min walk`;
+}

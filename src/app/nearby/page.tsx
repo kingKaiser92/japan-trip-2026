@@ -14,10 +14,10 @@ import { Loader2, MapPinOff, RefreshCw } from "lucide-react";
 type RadiusOption = 500 | 1000 | 2000;
 type TypeFilter = "all" | "food" | "shop";
 
-const radiusOptions: { value: RadiusOption; label: string }[] = [
-  { value: 500, label: "Right here" },
-  { value: 1000, label: "Short walk" },
-  { value: 2000, label: "Worth the walk" },
+const radiusOptions: { value: RadiusOption; label: string; time: string }[] = [
+  { value: 500, label: "Right here", time: "~6 min" },
+  { value: 1000, label: "Short walk", time: "~12 min" },
+  { value: 2000, label: "Worth the walk", time: "~25 min" },
 ];
 
 const typeFilters: { value: TypeFilter; label: string }[] = [
@@ -169,7 +169,7 @@ export default function NearbyPage() {
                       : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
                   )}
                 >
-                  {opt.value < 1000 ? `${opt.value}m` : `${opt.value / 1000}km`} &middot; {opt.label}
+                  {opt.time} &middot; {opt.label}
                 </button>
               ))}
             </div>
@@ -201,7 +201,7 @@ export default function NearbyPage() {
           {/* Count */}
           <p className="text-[11px] uppercase tracking-[0.2em] text-on-surface-variant">
             {filtered.length} spot{filtered.length !== 1 ? "s" : ""} within{" "}
-            {radius < 1000 ? `${radius}m` : `${radius / 1000}km`}
+            {radiusOptions.find((o) => o.value === radius)?.time ?? `${radius}m`} walk
           </p>
 
           {/* Cards */}
@@ -214,15 +214,15 @@ export default function NearbyPage() {
           ) : (
             <div className="flex flex-col items-center gap-4 py-16 text-on-surface-variant">
               <p className="text-sm">
-                Nothing from your list within{" "}
-                {radius < 1000 ? `${radius}m` : `${radius / 1000}km`}
+                Nothing from your list within a{" "}
+                {radiusOptions.find((o) => o.value === radius)?.time ?? `${radius}m`} walk
               </p>
               {nextRadius && (
                 <button
                   onClick={() => setRadius(nextRadius)}
                   className="rounded-full bg-cherry-fixed px-5 py-2 text-[11px] font-medium uppercase tracking-wider text-cherry-dark transition-all duration-400 hover:shadow-ambient"
                 >
-                  Expand to {nextRadius < 1000 ? `${nextRadius}m` : `${nextRadius / 1000}km`}
+                  Expand to {radiusOptions.find((o) => o.value === nextRadius)?.time} walk
                 </button>
               )}
             </div>

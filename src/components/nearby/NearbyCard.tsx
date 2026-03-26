@@ -3,7 +3,7 @@
 import { Utensils, Coffee, Wine, UtensilsCrossed, ShoppingBag } from "lucide-react";
 import { MapLink } from "@/components/shared/MapLink";
 import { getOpenStatus } from "@/lib/openNow";
-import { formatDistance } from "@/lib/distance";
+import { formatWalkingTime } from "@/lib/distance";
 import { cn } from "@/lib/utils";
 import type { RecSource } from "@/data/restaurants";
 
@@ -45,7 +45,7 @@ export function NearbyCard({ item }: { item: NearbyItem }) {
                 {item.name}
               </span>
               <span className="shrink-0 rounded-full bg-cherry-fixed px-2 py-0.5 text-[11px] font-semibold text-cherry-dark">
-                {formatDistance(item.distance)}
+                {formatWalkingTime(item.distance)}
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 text-[11px] uppercase tracking-[0.15em] text-on-surface-variant">
