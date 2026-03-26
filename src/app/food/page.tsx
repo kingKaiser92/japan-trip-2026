@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { foodSpots, type FoodCategory, type FoodSpot } from "@/data/restaurants";
 import { legs } from "@/data/legs";
 import { recsAsFoodSpots } from "@/data/notionRecs";
 import { MapLink } from "@/components/shared/MapLink";
-import { Utensils, Coffee, Wine, UtensilsCrossed } from "lucide-react";
+import { Utensils, Coffee, Wine, UtensilsCrossed, Crosshair } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getOpenStatus } from "@/lib/openNow";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { getCoords } from "@/data/coordinates";
+import { haversineDistance, formatWalkingTime } from "@/lib/distance";
 
 const categoryIcons: Record<FoodCategory, typeof Utensils> = {
   restaurant: Utensils,
@@ -17,24 +20,47 @@ const categoryIcons: Record<FoodCategory, typeof Utensils> = {
 };
 
 type FilterType = "all" | FoodCategory;
-type LegFilter = "all" | string;
+type LegFilter = "all" | "near-me" | string;
 
 export default function FoodPage() {
   const [categoryFilter, setCategoryFilter] = useState<FilterType>("all");
   const [legFilter, setLegFilter] = useState<LegFilter>("all");
+  const { position, loading: gpsLoading } = useGeolocation();
 
   // Merge handcoded spots with Notion-synced recs, deduplicating by name
-  const allSpots: FoodSpot[] = (() => {
+  const allSpots: FoodSpot[] = useMemo(() => {
     const existingNames = new Set(foodSpots.map((s) => s.name.toLowerCase()));
     const notionExtra = recsAsFoodSpots().filter((r) => !existingNames.has(r.name.toLowerCase()));
     return [...foodSpots, ...notionExtra];
-  })();
+  }, []);
+
+  // Distance map for near-me mode
+  const distanceMap = useMemo(() => {
+    if (!position) return new Map<string, number>();
+    const map = new Map<string, number>();
+    for (const spot of allSpots) {
+      const coords = getCoords(spot.name) || getCoords(spot.mapsQuery);
+      if (coords) {
+        map.set(spot.id, haversineDistance(position.lat, position.lng, coords.lat, coords.lng));
+      }
+    }
+    return map;
+  }, [position, allSpots]);
+
+  const isNearMe = legFilter === "near-me";
 
   let filtered = allSpots;
   if (categoryFilter !== "all") filtered = filtered.filter((s) => s.category === categoryFilter);
-  if (legFilter !== "all") filtered = filtered.filter((s) => s.legSlug === legFilter);
+  if (!isNearMe && legFilter !== "all") filtered = filtered.filter((s) => s.legSlug === legFilter);
 
-  // Group by leg
+  // Near-me: filter to items with coords, sort by distance
+  if (isNearMe) {
+    filtered = filtered
+      .filter((s) => distanceMap.has(s.id))
+      .sort((a, b) => (distanceMap.get(a.id) ?? 0) - (distanceMap.get(b.id) ?? 0));
+  }
+
+  // Group by leg (only used in non-nearby mode)
   const groupedByLeg = legs
     .map((leg) => ({
       leg,
@@ -46,7 +72,7 @@ export default function FoodPage() {
     <div className="space-y-10">
       <div className="space-y-3 pt-4">
         <p className="text-[11px] uppercase tracking-[0.2em] text-on-surface-variant">
-          {filtered.length} spots across the trip
+          {filtered.length} spots {isNearMe ? "sorted by distance" : "across the trip"}
         </p>
         <h1 className="font-serif text-3xl font-semibold tracking-tight text-on-surface">
           Food & Nightlife
@@ -83,6 +109,18 @@ export default function FoodPage() {
           >
             All Legs
           </button>
+          <button
+            onClick={() => setLegFilter("near-me")}
+            className={cn(
+              "rounded-full px-4 py-1.5 text-[11px] font-medium uppercase tracking-wider transition-all duration-400 flex items-center gap-1.5",
+              isNearMe
+                ? "bg-on-surface text-surface"
+                : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
+            )}
+          >
+            <Crosshair className="h-3 w-3" />
+            Near Me
+          </button>
           {legs.map((leg) => (
             <button
               key={leg.slug}
@@ -100,8 +138,75 @@ export default function FoodPage() {
         </div>
       </div>
 
-      {/* Grouped list */}
-      {groupedByLeg.map(({ leg, spots }) => {
+      {/* Near-me flat list */}
+      {isNearMe && (
+        <div className="space-y-2">
+          {!position && gpsLoading && (
+            <p className="text-sm text-on-surface-variant py-8 text-center">Finding your location...</p>
+          )}
+          {!position && !gpsLoading && (
+            <p className="text-sm text-on-surface-variant py-8 text-center">Location unavailable — enable GPS to use Near Me.</p>
+          )}
+          {filtered.map((spot) => {
+            const Icon = categoryIcons[spot.category];
+            const dist = distanceMap.get(spot.id);
+            return (
+              <div
+                key={spot.id}
+                className="rounded-xl bg-surface-container-lowest p-4 transition-all duration-400 hover:shadow-ambient"
+              >
+                <div className="flex items-start gap-3">
+                  <Icon className="h-4 w-4 mt-1 shrink-0 text-on-surface-variant" />
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-serif font-medium text-on-surface text-[15px]">
+                          {spot.name}
+                        </span>
+                        {dist !== undefined && (
+                          <span className="shrink-0 rounded-full bg-cherry-fixed px-2 py-0.5 text-[11px] font-semibold text-cherry-dark">
+                            {formatWalkingTime(dist)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-0.5 text-[11px] uppercase tracking-[0.15em] text-on-surface-variant">
+                        {spot.cuisine && <span>{spot.cuisine}</span>}
+                        {spot.rating && <span>&middot; {spot.rating}★</span>}
+                        <span>&middot; {spot.hours}</span>
+                        {(() => {
+                          const status = getOpenStatus(spot.hours);
+                          if (status === "open") return <span className="text-green-400 font-semibold normal-case tracking-normal">&middot; Open</span>;
+                          if (status === "closed") return <span className="text-red-400/70 font-semibold normal-case tracking-normal">&middot; Closed</span>;
+                          return null;
+                        })()}
+                      </div>
+                    </div>
+                    <p className="text-sm text-on-surface-variant leading-relaxed">
+                      {spot.description}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <MapLink query={spot.mapsQuery} />
+                      {spot.recSource && spot.recSource !== "personal" && (
+                        <span className={cn(
+                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider",
+                          spot.recSource === "asif"
+                            ? "bg-cherry-fixed text-cherry-dark"
+                            : "bg-surface-container-high text-on-surface-variant"
+                        )}>
+                          {spot.recSource === "asif" ? "Asif's" : spot.recSource === "may-ann" ? "May Ann's" : `${String(spot.recSource)}'s`} Rec
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Grouped list (normal mode) */}
+      {!isNearMe && groupedByLeg.map(({ leg, spots }) => {
         const neighborhoods = [...new Set(spots.map((s) => s.neighborhood))];
 
         return (
