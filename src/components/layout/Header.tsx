@@ -49,7 +49,7 @@ export function Header() {
 
       {/* Desktop nav — hidden on mobile (mobile uses MobileNav) */}
       <nav className="hidden md:block border-t border-outline-variant/20">
-        <div className="mx-auto flex max-w-2xl items-center gap-1 overflow-x-auto px-5 py-1.5">
+        <div className="mx-auto flex max-w-2xl items-center gap-1 flex-wrap px-5 py-1.5">
           {desktopNav.map((item) => {
             const isActive = pathname === item.href;
             return (
