@@ -1058,17 +1058,6 @@ export const days: TripDay[] = [
         notes: "Arrive JFK ~6:10 PM ET same day.",
         isOptional: false,
         mapsQuery: "Flight AA 168 → New York",
-      },
-      {
-        id: "d13-viral-fried-stuffed-sandwiches-6",
-        time: "🟡 Age.3 Ginza",
-        isApproximate: false,
-        name: "Viral fried stuffed sandwiches (crème brûlée, short rib, curry). 4.7★ (16K reviews). Expect 30 min wait.",
-        category: "shopping",
-        notes: "Ginza 1-chome",
-        isOptional: false,
-        mapsQuery: "Viral fried stuffed sandwiches (crème brûlée, short rib, curry). 4.7★ (16K reviews). Expect 30 min wait.",
-        recSource: "asif",
       }
     ],
   }
