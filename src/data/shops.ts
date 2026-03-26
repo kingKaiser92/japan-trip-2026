@@ -1,3 +1,5 @@
+import type { RecSource } from "./restaurants";
+
 export interface ShopItem {
   id: string;
   name: string;
@@ -8,6 +10,7 @@ export interface ShopItem {
   neighborhood: string;
   mapsQuery: string;
   rating?: string;
+  recSource?: RecSource;
 }
 
 export const shops: ShopItem[] = [
