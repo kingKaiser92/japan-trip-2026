@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { haversineDistance } from "@/lib/distance";
+import { haversineDistance, formatWalkingTime } from "@/lib/distance";
 import { getCoords } from "@/data/coordinates";
 import { foodSpots } from "@/data/restaurants";
 import { recsAsFoodSpots, notionRecs } from "@/data/notionRecs";
@@ -11,14 +11,11 @@ import { NearbyCard, type NearbyItem } from "@/components/nearby/NearbyCard";
 import { cn } from "@/lib/utils";
 import { Loader2, MapPinOff, RefreshCw } from "lucide-react";
 
-type RadiusOption = 500 | 1000 | 2000;
-type TypeFilter = "all" | "food" | "shop";
+const MIN_RADIUS = 200;
+const MAX_RADIUS = 3000;
+const STEP = 100;
 
-const radiusOptions: { value: RadiusOption; label: string; time: string }[] = [
-  { value: 500, label: "Right here", time: "~6 min" },
-  { value: 1000, label: "Short walk", time: "~12 min" },
-  { value: 2000, label: "Worth the walk", time: "~25 min" },
-];
+type TypeFilter = "all" | "food" | "shop";
 
 const typeFilters: { value: TypeFilter; label: string }[] = [
   { value: "all", label: "All" },
@@ -28,7 +25,7 @@ const typeFilters: { value: TypeFilter; label: string }[] = [
 
 export default function NearbyPage() {
   const { position, error, loading, refresh } = useGeolocation();
-  const [radius, setRadius] = useState<RadiusOption>(1000);
+  const [radius, setRadius] = useState(1000);
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
 
   // Build unified item list, deduped by lowercase name
@@ -116,8 +113,8 @@ export default function NearbyPage() {
     return list.sort((a, b) => a.distance - b.distance);
   }, [allItems, radius, typeFilter]);
 
-  // Next radius up for empty state
-  const nextRadius = radius < 2000 ? (radius === 500 ? 1000 : 2000) as RadiusOption : null;
+  // Can we expand further?
+  const canExpand = radius < MAX_RADIUS;
 
   return (
     <div className="space-y-10">
@@ -155,24 +152,33 @@ export default function NearbyPage() {
       {/* Results */}
       {!loading && !error && position && (
         <>
-          {/* Filters */}
-          <div className="space-y-2">
-            <div className="flex flex-wrap gap-2">
-              {radiusOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => setRadius(opt.value)}
-                  className={cn(
-                    "rounded-full px-4 py-1.5 text-[11px] font-medium uppercase tracking-wider transition-all duration-400",
-                    radius === opt.value
-                      ? "bg-cherry-fixed text-cherry-dark"
-                      : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
-                  )}
-                >
-                  {opt.time} &middot; {opt.label}
-                </button>
-              ))}
+          {/* Radius slider */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[11px] uppercase tracking-[0.2em] text-on-surface-variant">
+                  Walking distance
+                </span>
+                <span className="rounded-full bg-cherry-fixed px-3 py-1 text-[12px] font-semibold text-cherry-dark">
+                  {formatWalkingTime(radius)}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={MIN_RADIUS}
+                max={MAX_RADIUS}
+                step={STEP}
+                value={radius}
+                onChange={(e) => setRadius(Number(e.target.value))}
+                className="cherry-slider"
+              />
+              <div className="flex justify-between text-[10px] text-on-surface-variant/50">
+                <span>{formatWalkingTime(MIN_RADIUS)}</span>
+                <span>{formatWalkingTime(MAX_RADIUS)}</span>
+              </div>
             </div>
+
+            {/* Type filters + refresh */}
             <div className="flex flex-wrap gap-2">
               {typeFilters.map((f) => (
                 <button
@@ -200,8 +206,8 @@ export default function NearbyPage() {
 
           {/* Count */}
           <p className="text-[11px] uppercase tracking-[0.2em] text-on-surface-variant">
-            {filtered.length} spot{filtered.length !== 1 ? "s" : ""} within{" "}
-            {radiusOptions.find((o) => o.value === radius)?.time ?? `${radius}m`} walk
+            {filtered.length} spot{filtered.length !== 1 ? "s" : ""} within a{" "}
+            {formatWalkingTime(radius)}
           </p>
 
           {/* Cards */}
@@ -214,15 +220,14 @@ export default function NearbyPage() {
           ) : (
             <div className="flex flex-col items-center gap-4 py-16 text-on-surface-variant">
               <p className="text-sm">
-                Nothing from your list within a{" "}
-                {radiusOptions.find((o) => o.value === radius)?.time ?? `${radius}m`} walk
+                Nothing from your list within a {formatWalkingTime(radius)}
               </p>
-              {nextRadius && (
+              {canExpand && (
                 <button
-                  onClick={() => setRadius(nextRadius)}
+                  onClick={() => setRadius(MAX_RADIUS)}
                   className="rounded-full bg-cherry-fixed px-5 py-2 text-[11px] font-medium uppercase tracking-wider text-cherry-dark transition-all duration-400 hover:shadow-ambient"
                 >
-                  Expand to {radiusOptions.find((o) => o.value === nextRadius)?.time} walk
+                  Expand to max ({formatWalkingTime(MAX_RADIUS)})
                 </button>
               )}
             </div>

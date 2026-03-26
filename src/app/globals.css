@@ -140,3 +140,34 @@
 .timeline-connector {
   background: rgba(196, 199, 199, 0.1);
 }
+
+/* Range slider — cherry themed */
+input[type="range"].cherry-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 9999px;
+  background: #e9e8e4;
+  outline: none;
+}
+input[type="range"].cherry-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #FFB7C5;
+  border: 2px solid #360c19;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(27, 28, 26, 0.12);
+}
+input[type="range"].cherry-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #FFB7C5;
+  border: 2px solid #360c19;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(27, 28, 26, 0.12);
+}
