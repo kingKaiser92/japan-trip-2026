@@ -88,6 +88,7 @@ const coordsMap: Record<string, LatLng> = {
   "rinkan shibuya": { lat: 35.6611, lng: 139.6988 },
   "2nd street shibuya": { lat: 35.6600, lng: 139.6975 },
   "ragtag shibuya": { lat: 35.6608, lng: 139.6982 },
+  "espresso d works yellow": { lat: 35.6601, lng: 139.6990 },
 
   // Vintage districts
   "koenji": { lat: 35.7063, lng: 139.6495 },
