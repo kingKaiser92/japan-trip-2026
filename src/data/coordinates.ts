@@ -240,4 +240,26 @@ const coordsMap: Record<string, LatLng> = {
   "club 360": { lat: 35.6605, lng: 139.7330 },
   "kamo river": { lat: 35.0100, lng: 135.7710 },
   "sumida river": { lat: 35.7050, lng: 139.7940 },
+
+  // ═══════════════════════════════════════
+  // BRANDON'S RECS — Kyoto
+  // ═══════════════════════════════════════
+  "bar krft tiki": { lat: 35.0037, lng: 135.7762 },
+  "bar krft tiki, higashiyama, kyoto": { lat: 35.0037, lng: 135.7762 },
+  "scotch & branch": { lat: 35.0048, lng: 135.7668 },
+  "scotch & branch, nakagyo ward, kyoto": { lat: 35.0048, lng: 135.7668 },
+  "cafe & bar benikoumori": { lat: 35.0032, lng: 135.7756 },
+  "cafe & bar benikoumori, higashiyama, kyoto": { lat: 35.0032, lng: 135.7756 },
+  "ebisugawa-gyoza nakajima donguri": { lat: 35.0060, lng: 135.7710 },
+  "ebisugawa-gyoza nakajima donguri, higashiyama, kyoto": { lat: 35.0060, lng: 135.7710 },
+  "pizzeria mama": { lat: 34.9965, lng: 135.6780 },
+  "pizzeria mama, arashiyama, kyoto": { lat: 34.9965, lng: 135.6780 },
+
+  // ═══════════════════════════════════════
+  // BRANDON'S RECS — Osaka
+  // ═══════════════════════════════════════
+  "bar shiki": { lat: 34.6715, lng: 135.5025 },
+  "bar shiki, higashi-shinsaibashi, osaka": { lat: 34.6715, lng: 135.5025 },
+  "hollow bar": { lat: 34.6720, lng: 135.4985 },
+  "hollow bar, nishi-shinsaibashi, osaka": { lat: 34.6720, lng: 135.4985 },
 };
