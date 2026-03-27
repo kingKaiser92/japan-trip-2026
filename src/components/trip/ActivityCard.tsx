@@ -59,6 +59,11 @@ export function ActivityCard({ activity }: { activity: Activity }) {
                 May Ann&apos;s Rec
               </span>
             )}
+            {activity.recSource === "brandon" && (
+              <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-emerald-800">
+                Brandon&apos;s Rec
+              </span>
+            )}
           </div>
         </div>
 

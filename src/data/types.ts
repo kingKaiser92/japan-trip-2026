@@ -10,7 +10,7 @@ export type ActivityCategory =
 
 export type BookingStatus = "booked" | "pending" | "walk-in" | "no-reservation";
 
-export type RecSource = "asif" | "may-ann" | "personal" | null;
+export type RecSource = "asif" | "may-ann" | "brandon" | "personal" | null;
 
 export type DayRhythm = "packed" | "moderate" | "chill" | "arrival" | "departure";
 

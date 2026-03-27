@@ -191,7 +191,9 @@ export default function FoodPage() {
                           "inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider",
                           spot.recSource === "asif"
                             ? "bg-cherry-fixed text-cherry-dark"
-                            : "bg-surface-container-high text-on-surface-variant"
+                            : spot.recSource === "brandon"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-surface-container-high text-on-surface-variant"
                         )}>
                           {spot.recSource === "asif" ? "Asif's" : spot.recSource === "may-ann" ? "May Ann's" : `${String(spot.recSource)}'s`} Rec
                         </span>

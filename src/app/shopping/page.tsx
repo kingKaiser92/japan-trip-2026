@@ -173,7 +173,9 @@ export default function ShoppingPage() {
                           "inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider",
                           shop.recSource === "asif"
                             ? "bg-cherry-fixed text-cherry-dark"
-                            : "bg-surface-container-high text-on-surface-variant"
+                            : shop.recSource === "brandon"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-surface-container-high text-on-surface-variant"
                         )}>
                           {shop.recSource === "asif" ? "Asif's" : shop.recSource === "may-ann" ? "May Ann's" : `${String(shop.recSource)}'s`} Rec
                         </span>

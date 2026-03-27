@@ -1,5 +1,5 @@
 export type FoodCategory = "restaurant" | "cafe" | "bar" | "street-food";
-export type RecSource = "asif" | "may-ann" | "personal" | null;
+export type RecSource = "asif" | "may-ann" | "brandon" | "personal" | null;
 
 export interface FoodSpot {
   id: string;
